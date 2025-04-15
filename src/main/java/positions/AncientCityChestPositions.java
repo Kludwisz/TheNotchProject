@@ -1,4 +1,4 @@
-package notches;
+package positions;
 
 import com.seedfinding.mccore.rand.ChunkRand;
 import com.seedfinding.mccore.util.data.Pair;
