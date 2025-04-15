@@ -14,7 +14,7 @@
 package org.weakref.int128;
 
 /*
-Modifications made: removed unused methods, switched to the pre-jdk18 version of unsignedMultiplyHigh
+Modifications made: removed unused methods and function parameters, switched to the pre-jdk18 version of unsignedMultiplyHigh
  */
 public final class Int128Math
 {
@@ -25,7 +25,7 @@ public final class Int128Math
         return aHigh + bHigh + MoreMath.unsignedCarry(aLow, bLow);
     }
 
-    public static long addLow(long aHigh, long aLow, long bHigh, long bLow)
+    public static long addLow(long aLow, long bLow)
     {
         return aLow + bLow;
     }
@@ -40,7 +40,7 @@ public final class Int128Math
         return Math.multiplyHigh(x, y) + (x & (y >> 63)) + (y & (x >> 63));
     }
 
-    public static long multiplyLow(long aHigh, long aLow, long bHigh, long bLow)
+    public static long multiplyLow(long aLow, long bLow)
     {
         return aLow * bLow;
     }
@@ -55,7 +55,7 @@ public final class Int128Math
         }
     }
 
-    public static long shiftLeftLow(long high, long low, int shift)
+    public static long shiftLeftLow(long low, int shift)
     {
         if (shift < 64) {
             return low << shift;
@@ -65,7 +65,7 @@ public final class Int128Math
         }
     }
 
-    public static long shiftRightHigh(long high, long low, int shift)
+    public static long shiftRightHigh(long high, int shift)
     {
         if (shift < 64) {
             return high >> shift;

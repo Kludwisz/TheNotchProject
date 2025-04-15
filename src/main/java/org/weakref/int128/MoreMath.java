@@ -22,10 +22,4 @@ class MoreMath
         // HD 2-13
         return ((a >>> 1) + (b >>> 1) + ((a & b) & 1)) >>> 63;
     }
-
-    public static long unsignedBorrow(long a, long b)
-    {
-        // HD 2-13
-        return ((~a & b) | (~(a ^ b) & (a - b))) >>> 63;
-    }
 }

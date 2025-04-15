@@ -17,8 +17,6 @@ Modifications made: removed all methods not used in the project
 package org.weakref.int128;
 
 public record Int128(long high, long low) {
-    public static final Int128 ZERO = new Int128(0, 0);
-    public static final Int128 ONE = new Int128(0, 1);
 
     // --- conversion functions
 
@@ -37,7 +35,7 @@ public record Int128(long high, long low) {
     public static Int128 shiftRight(Int128 value, int shift)
     {
         return new Int128(
-                Int128Math.shiftRightHigh(value.high(), value.low(), shift),
+                Int128Math.shiftRightHigh(value.high(), shift),
                 Int128Math.shiftRightLow(value.high(), value.low(), shift));
     }
 
@@ -45,7 +43,7 @@ public record Int128(long high, long low) {
     {
         return new Int128(
                 Int128Math.shiftLeftHigh(value.high(), value.low(), shift),
-                Int128Math.shiftLeftLow(value.high(), value.low(), shift));
+                Int128Math.shiftLeftLow(value.low(), shift));
     }
 
     // --- Arithmetic operations
@@ -54,19 +52,18 @@ public record Int128(long high, long low) {
     {
         return new Int128(
                 Int128Math.addHigh(a.high(), a.low(), b.high(), b.low()),
-                Int128Math.addLow(a.high(), a.low(), b.high(), b.low()));
+                Int128Math.addLow(a.low(), b.low()));
     }
 
     public static Int128 multiply(Int128 a, Int128 b)
     {
         return new Int128(
                 Int128Math.multiplyHigh(a.high(), a.low(), b.high(), b.low()),
-                Int128Math.multiplyLow(a.high(), a.low(), b.high(), b.low()));
+                Int128Math.multiplyLow(a.low(), b.low()));
     }
 
     public static Int128 multiply(Int128 a, long b)
     {
-        // TODO: optimize
         return multiply(a, valueOf(b));
     }
 
@@ -75,7 +72,6 @@ public record Int128(long high, long low) {
      */
     public static Int128 multiply(long a, long b)
     {
-        // TODO: optimize
         return multiply(valueOf(a), valueOf(b));
     }
 }
