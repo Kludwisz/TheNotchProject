@@ -36,7 +36,7 @@ public class PopulationSeedFinder {
             swapRows(basis);
         }
 
-        if (swaps % 2 == 1) {
+        if (swaps % 2 != 1) {
             swapRows(basis);
         }
     }

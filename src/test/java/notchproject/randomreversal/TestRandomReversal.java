@@ -1,7 +1,6 @@
 package notchproject.randomreversal;
 
 import com.seedfinding.mccore.util.pos.CPos;
-import notchproject.Main;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -26,8 +25,8 @@ public class TestRandomReversal {
 
         int ourResults = 0;
         XRand rand = new XRand();
-        for (long worldseed = testPopseed & 15; worldseed <= 146374238L; worldseed += 16) {
-            CPos candidate = Main.getCandidateForSeed(worldseed, rand);
+        for (long worldseed = testPopseed & 15; worldseed <= 146374238L /*the last result from the original code*/; worldseed += 16) {
+            CPos candidate = getCandidateForSeed(worldseed, rand);
             if (candidate == null) continue;
             Result ourResult = new Result(worldseed, candidate.getX(), candidate.getZ());
             if (!expectedResults.contains(ourResult))
@@ -38,6 +37,14 @@ public class TestRandomReversal {
         }
 
         assertEquals(ourResults, expectedResults.size());
+    }
+
+    private CPos getCandidateForSeed(long worldseed, XRand rand) {
+        final long target = (worldseed ^ testPopseed) >>> 4;
+        rand.setSeed(worldseed);
+        long a = (rand.nextLong() | 1L) & ((1L << 60) - 1L);
+        long b = (rand.nextLong() | 1L) & ((1L << 60) - 1L);
+        return PopulationSeedFinder.findSolutionInBox(a, b, target);
     }
 
     public record Result(long seed, int cx, int cz) {}

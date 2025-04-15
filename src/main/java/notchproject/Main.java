@@ -6,7 +6,7 @@ import notchproject.randomreversal.XRand;
 
 public class Main {
     private static final long MASK_60 = (1L << 60) - 1L;
-    private static final long TARGET_POPULATION_SEED = 18789082044254L; // TODO run cuda kernel to find this
+    private static final long TARGET_POPULATION_SEED = 0L; // TODO run cuda kernel to find this
     private static final long TARGET_LOWER_NIBBLE = TARGET_POPULATION_SEED & 15L;
 
     public static void main(String[] args) {
