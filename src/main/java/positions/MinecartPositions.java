@@ -30,11 +30,11 @@ public class MinecartPositions {
     private static void addChests(CPos chunkPos, ArrayList<BPos> possibleChestsInChunk) {
         BlockBox chunkBB = new BlockBox(
                 chunkPos.getX() * 16, -64, chunkPos.getZ() * 16,
-                chunkPos.getX() * 16 + 15, 255, chunkPos.getZ() * 16 + 15
+                chunkPos.getX() * 16 + 16, 255, chunkPos.getZ() * 16 + 16
         );
 
         gen.getCorridors().stream()
-                .filter(corr -> corr.boundingBox.intersects(chunkBB)) // for efficiency
+                .filter(corr -> corr.boundingBox.intersects(chunkBB)) // this is just for efficiency
                 .flatMap(corr -> corr.getPossibleChestPositions().stream())
                 .filter(pos -> pos.toChunkPos().equals(chunkPos))
                 .forEach(possibleChestsInChunk::add);

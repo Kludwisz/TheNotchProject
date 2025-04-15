@@ -27,6 +27,8 @@ dependencies {
     implementation('com.seedfinding:mc_reversal:1.171.1') { transitive = false }
     implementation('com.seedfinding:mc_feature:1.171.9') { transitive = false }
 
+    implementation group: 'it.unimi.dsi', name: 'fastutil-core', version: '8.5.13'
+
     implementation('com.github.kludwisz:MineshaftLoot:1.6.1') { transitive = false }
     implementation('com.github.Kludwisz:AncientCityGenerator:1.4') { transitive = false }
     implementation('com.github.kludwisz:TrialChamberGenerator:v1.3-mc_1.21.4') { transitive = false }
