@@ -1,5 +1,4 @@
 import com.seedfinding.mccore.util.pos.CPos;
-import randomreversal.Candidate;
 import randomreversal.PopulationSeedFinder;
 import randomreversal.XRand;
 
@@ -47,10 +46,10 @@ public class Main {
         XRand rand = new XRand();
 
         for (long worldseed = seedMin; worldseed <= seedMax; worldseed += 16) {
-            Candidate candidate = getCandidateForSeed(worldseed, rand);
+            CPos candidate = getCandidateForSeed(worldseed, rand);
             if (candidate == null) continue;
-            if (ChestArrangementChecker.testSeed(worldseed, new CPos(candidate.chunkX(), candidate.chunkZ()))) {
-                System.out.println(worldseed + " " + candidate.chunkX() + " " + candidate.chunkZ());
+            if (ChestArrangementChecker.testSeed(worldseed, new CPos(candidate.getX(), candidate.getZ()))) {
+                System.out.println(worldseed + " " + candidate.getX() + " " + candidate.getZ());
             }
         }
     }
@@ -67,12 +66,12 @@ public class Main {
 
             threadPool[tid] = new Thread(() -> {
                 for (long worldseed = start; worldseed < end; worldseed++) {
-                    Candidate candidate = getCandidateForSeed(worldseed, rand);
+                    CPos candidate = getCandidateForSeed(worldseed, rand);
                     if (candidate == null) continue;
 
                     synchronized (lock) { // ChestArrangementChecker.testSeed uses non-parallel code
-                        if (ChestArrangementChecker.testSeed(worldseed, new CPos(candidate.chunkX(), candidate.chunkZ()))) {
-                            System.out.println(worldseed + " " + candidate.chunkX() + " " + candidate.chunkZ());
+                        if (ChestArrangementChecker.testSeed(worldseed, new CPos(candidate.getX(), candidate.getZ()))) {
+                            System.out.println(worldseed + " " + candidate.getX() + " " + candidate.getZ());
                         }
                     }
                 }
@@ -91,7 +90,7 @@ public class Main {
         }
     }
 
-    private static Candidate getCandidateForSeed(long worldseed, XRand rand) {
+    private static CPos getCandidateForSeed(long worldseed, XRand rand) {
         final long target = (worldseed ^ TARGET_POPULATION_SEED) >>> 4;
         rand.setSeed(worldseed);
         long a = (rand.nextLong() | 1L) & MASK_60;
