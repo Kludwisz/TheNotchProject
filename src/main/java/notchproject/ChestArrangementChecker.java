@@ -1,8 +1,10 @@
+package notchproject;
+
 import com.seedfinding.mccore.util.pos.BPos;
 import com.seedfinding.mccore.util.pos.CPos;
-import positions.AncientCityChestPositions;
-import positions.HopperPositions;
-import positions.MinecartPositions;
+import notchproject.positions.AncientCityChestPositions;
+import notchproject.positions.HopperPositions;
+import notchproject.positions.MinecartPositions;
 
 public class ChestArrangementChecker {
     public static boolean testSeed(long worldseed, CPos chunk) {

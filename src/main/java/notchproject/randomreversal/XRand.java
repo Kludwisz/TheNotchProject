@@ -1,4 +1,4 @@
-package randomreversal;
+package notchproject.randomreversal;
 
 public class XRand {
     private long seedLo, seedHi;

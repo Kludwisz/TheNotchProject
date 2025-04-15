@@ -1,4 +1,4 @@
-package positions;
+package notchproject.positions;
 
 import com.seedfinding.mccore.util.pos.BPos;
 import com.seedfinding.mccore.util.pos.CPos;

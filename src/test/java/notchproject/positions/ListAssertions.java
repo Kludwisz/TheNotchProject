@@ -1,4 +1,4 @@
-package positions;
+package notchproject.positions;
 
 import java.util.List;
 

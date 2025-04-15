@@ -1,4 +1,4 @@
-package positions;
+package notchproject.positions;
 
 import com.seedfinding.mccore.rand.ChunkRand;
 import com.seedfinding.mccore.util.block.BlockMirror;

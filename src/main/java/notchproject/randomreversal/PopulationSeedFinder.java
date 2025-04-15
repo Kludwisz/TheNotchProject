@@ -1,4 +1,4 @@
-package randomreversal;
+package notchproject.randomreversal;
 
 import com.seedfinding.mccore.util.pos.CPos;
 
@@ -97,9 +97,8 @@ public class PopulationSeedFinder {
         long result = (a * x + b * z) & MASK_60;
         if (result != target) return null;
 
-        if (x >= minX && x <= maxX && z >= minZ && z <= maxZ) {
+        if (x >= minX && x <= maxX && z >= minZ && z <= maxZ)
             return new CPos((int)x, (int)z);
-        }
         return null;
     }
 }

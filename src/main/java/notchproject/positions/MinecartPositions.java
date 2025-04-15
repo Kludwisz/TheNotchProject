@@ -1,4 +1,4 @@
-package positions;
+package notchproject.positions;
 
 import com.seedfinding.mccore.util.block.BlockBox;
 import com.seedfinding.mccore.util.pos.BPos;

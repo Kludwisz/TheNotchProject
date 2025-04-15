@@ -1,10 +1,12 @@
+package notchproject;
+
 import com.seedfinding.mccore.util.pos.CPos;
-import randomreversal.PopulationSeedFinder;
-import randomreversal.XRand;
+import notchproject.randomreversal.PopulationSeedFinder;
+import notchproject.randomreversal.XRand;
 
 public class Main {
     private static final long MASK_60 = (1L << 60) - 1L;
-    private static final long TARGET_POPULATION_SEED = 0L; // TODO run cuda kernel to find this
+    private static final long TARGET_POPULATION_SEED = 18789082044254L; // TODO run cuda kernel to find this
     private static final long TARGET_LOWER_NIBBLE = TARGET_POPULATION_SEED & 15L;
 
     public static void main(String[] args) {
@@ -69,7 +71,7 @@ public class Main {
                     CPos candidate = getCandidateForSeed(worldseed, rand);
                     if (candidate == null) continue;
 
-                    synchronized (lock) { // ChestArrangementChecker.testSeed uses non-parallel code
+                    synchronized (lock) { // notchproject.ChestArrangementChecker.testSeed uses non-parallel code
                         if (ChestArrangementChecker.testSeed(worldseed, new CPos(candidate.getX(), candidate.getZ()))) {
                             System.out.println(worldseed + " " + candidate.getX() + " " + candidate.getZ());
                         }
@@ -90,7 +92,7 @@ public class Main {
         }
     }
 
-    private static CPos getCandidateForSeed(long worldseed, XRand rand) {
+    public static CPos getCandidateForSeed(long worldseed, XRand rand) {
         final long target = (worldseed ^ TARGET_POPULATION_SEED) >>> 4;
         rand.setSeed(worldseed);
         long a = (rand.nextLong() | 1L) & MASK_60;
