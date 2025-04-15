@@ -1,10 +1,10 @@
 package randomreversal;
 
-import java.util.List;
-
 public class PopulationSeedFinder {
-    public static List<Candidate> getCandidatesForSeed(long worldseed) {
-        return null;
+    public static Candidate findSolutionInBox(long a, long b, long target) {
         // TODO andrew's & scriptline's algo goes here
+
+
+        return null;
     }
 }

@@ -1,10 +1,13 @@
 import com.seedfinding.mccore.util.pos.CPos;
 import randomreversal.Candidate;
 import randomreversal.PopulationSeedFinder;
-
-import java.util.List;
+import randomreversal.XRand;
 
 public class Main {
+    private static final long MASK_60 = (1L << 60) - 1L;
+    private static final long TARGET_POPULATION_SEED = 0L; // TODO run cuda kernel to find this
+    private static final long TARGET_LOWER_NIBBLE = TARGET_POPULATION_SEED & 15L;
+
     public static void main(String[] args) {
         long seedMin = 0L;
         long seedMax = 0L;
@@ -37,14 +40,17 @@ public class Main {
     }
 
     private static void processSeedRange(long seedMin, long seedMax) {
-        for (long seed = seedMin; seed <= seedMax; seed++) {
-            List<Candidate> candidates = PopulationSeedFinder.getCandidatesForSeed(seed);
-            if (candidates == null) continue;
+        seedMin &= 0xFFFF_FFFF_FFFF_FFF0L;
+        seedMin |= TARGET_LOWER_NIBBLE;
+        seedMax &= 0xFFFF_FFFF_FFFF_FFF0L;
+        seedMax |= TARGET_LOWER_NIBBLE;
+        XRand rand = new XRand();
 
-            for (Candidate candidate : candidates) {
-                if (ChestArrangementChecker.testSeed(seed, new CPos(candidate.chunkX(), candidate.chunkZ()))) {
-                    System.out.println(seed + " " + candidate.chunkX() + " " + candidate.chunkZ());
-                }
+        for (long worldseed = seedMin; worldseed <= seedMax; worldseed += 16) {
+            Candidate candidate = getCandidateForSeed(worldseed, rand);
+            if (candidate == null) continue;
+            if (ChestArrangementChecker.testSeed(worldseed, new CPos(candidate.chunkX(), candidate.chunkZ()))) {
+                System.out.println(worldseed + " " + candidate.chunkX() + " " + candidate.chunkZ());
             }
         }
     }
@@ -55,19 +61,18 @@ public class Main {
 
         Thread[] threadPool = new Thread[threads];
         for (int tid = 0; tid < threads; tid++) {
-            final long start = seedMin + jobSize * tid;
-            final long end = (tid == threads - 1) ? seedMax : start + jobSize;
+            final long start = ((seedMin + jobSize * tid) & 0xFFFF_FFFF_FFFF_FFF0L) | TARGET_LOWER_NIBBLE;
+            final long end = ((seedMin + jobSize * (tid + 1)) & 0xFFFF_FFFF_FFFF_FFF0L) | TARGET_LOWER_NIBBLE;
+            XRand rand = new XRand();
 
             threadPool[tid] = new Thread(() -> {
-                for (long seed = start; seed < end; seed++) {
-                    List<Candidate> candidates = PopulationSeedFinder.getCandidatesForSeed(seed);
-                    if (candidates == null) continue;
+                for (long worldseed = start; worldseed < end; worldseed++) {
+                    Candidate candidate = getCandidateForSeed(worldseed, rand);
+                    if (candidate == null) continue;
 
-                    for (Candidate candidate : candidates) {
-                        synchronized (lock) { // ChestArrangementChecker.testSeed uses non-parallel code
-                            if (ChestArrangementChecker.testSeed(seed, new CPos(candidate.chunkX(), candidate.chunkZ()))) {
-                                System.out.println(seed + " " + candidate.chunkX() + " " + candidate.chunkZ());
-                            }
+                    synchronized (lock) { // ChestArrangementChecker.testSeed uses non-parallel code
+                        if (ChestArrangementChecker.testSeed(worldseed, new CPos(candidate.chunkX(), candidate.chunkZ()))) {
+                            System.out.println(worldseed + " " + candidate.chunkX() + " " + candidate.chunkZ());
                         }
                     }
                 }
@@ -84,5 +89,13 @@ public class Main {
                 System.err.println("Thread interrupted: " + e.getMessage());
             }
         }
+    }
+
+    private static Candidate getCandidateForSeed(long worldseed, XRand rand) {
+        final long target = (worldseed ^ TARGET_POPULATION_SEED) >>> 4;
+        rand.setSeed(worldseed);
+        long a = (rand.nextLong() | 1L) & MASK_60;
+        long b = (rand.nextLong() | 1L) & MASK_60;
+        return PopulationSeedFinder.findSolutionInBox(a, b, target);
     }
 }
