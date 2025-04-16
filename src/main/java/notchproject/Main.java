@@ -1,12 +1,13 @@
 package notchproject;
 
 import com.seedfinding.mccore.util.pos.CPos;
+import notchproject.finders.ChestArrangementChecker;
 import notchproject.randomreversal.PopulationSeedFinder;
 import notchproject.randomreversal.XRand;
 
 public class Main {
     private static final long MASK_60 = (1L << 60) - 1L;
-    private static final long TARGET_POPULATION_SEED = 0L; // TODO run cuda kernel to find this
+    private static final long TARGET_POPULATION_SEED = 0L;
     private static final long TARGET_LOWER_NIBBLE = TARGET_POPULATION_SEED & 15L;
 
     public static void main(String[] args) {
@@ -71,7 +72,7 @@ public class Main {
                     CPos candidate = getCandidateForSeed(worldseed, rand);
                     if (candidate == null) continue;
 
-                    synchronized (lock) { // notchproject.ChestArrangementChecker.testSeed uses non-parallel code
+                    synchronized (lock) { // notchproject.finders.ChestArrangementChecker.testSeed uses non-parallel code
                         if (ChestArrangementChecker.testSeed(worldseed, new CPos(candidate.getX(), candidate.getZ()))) {
                             System.out.println(worldseed + " " + candidate.getX() + " " + candidate.getZ());
                         }

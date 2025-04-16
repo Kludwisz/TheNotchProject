@@ -1,4 +1,4 @@
-package notchproject;
+package notchproject.finders;
 
 import com.seedfinding.mccore.util.pos.BPos;
 import com.seedfinding.mccore.util.pos.CPos;
