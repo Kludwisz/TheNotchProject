@@ -44,10 +44,15 @@ public class FindSeedTask implements Runnable {
 
     @Override
     public void run() {
+        //synchronized (System.out) {
+        //    System.out.printf("Task started: %d - %d.\n", start, end);
+        //}
         for (long seed = start; seed < end; seed++) {
             checkSeed(seed);
         }
-        System.out.printf("Task #%d finished.\n", counter.incrementAndGet());
+        synchronized (System.out) {
+            System.out.printf("Task #%d finished.\n", counter.incrementAndGet());
+        }
     }
 
     private void checkSeed(long seed) {

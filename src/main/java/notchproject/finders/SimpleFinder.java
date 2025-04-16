@@ -1,9 +1,21 @@
 package notchproject.finders;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+// working seed: 29275633801910611
+
 public class SimpleFinder {
+//    public static void main(String[] args) {
+//        SeedList seeds = SeedList.fromFile("src/main/resources/minecart_hopper_chest.txt");
+//        long structureSeed = seeds.toFlatStructureSeedList().getEntry(0).getSeed();
+//        SeedList sisterSeeds = new SeedList();
+//        sisterSeeds.addEntry(List.of(structureSeed));
+//        sisterSeeds.addSisterSeedsOf(structureSeed, 65535);
+//        sisterSeeds.toFile("src/main/resources/minecart_hopper_chest_full.txt");
+//    }
+
     public static void main(String[] args) {
 //        long seed1 = 123L;
 //        CPos tc = new CPos(50,49);
@@ -12,15 +24,17 @@ public class SimpleFinder {
 //        checkTrialChambers(seed1, tc);
 
         final long total = 100_000_000_000L * 25;
-        final long offset = 200_000_000_000L;
-        final int taskCount = 4096;
-        final long taskSize = total / taskCount + 1;
+        final long offset = 100_000_000_000L;
+        final long taskSize = 1_000_000_000L;
+        final int taskCount = (int)(total / taskSize);
+        //final int taskCount = 1024;
+
         final int threads = 8;
 
         ExecutorService executor = Executors.newFixedThreadPool(threads);
         for (int i = 0; i < taskCount; i++) {
             long start = offset + i * taskSize;
-            long end = offset + Math.min(start + taskSize, total);
+            long end = Math.min(start + taskSize, offset + total);
             executor.submit(new FindSeedTask(start, end));
         }
         executor.shutdown();
