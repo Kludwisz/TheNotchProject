@@ -1,7 +1,10 @@
 package notchproject.probability;
 
+import com.seedfinding.mccore.util.block.BlockBox;
 import com.seedfinding.mccore.util.math.DistanceMetric;
 import com.seedfinding.mccore.util.pos.BPos;
+import com.seedfinding.mccore.util.pos.CPos;
+import com.seedfinding.mccore.version.MCVersion;
 import com.seedfinding.mcfeature.loot.LootContext;
 import com.seedfinding.mcfeature.loot.LootPool;
 import com.seedfinding.mcfeature.loot.LootTable;
@@ -11,6 +14,7 @@ import com.seedfinding.mcfeature.loot.item.ItemStack;
 import com.seedfinding.mcfeature.loot.item.Items;
 import com.seedfinding.mcfeature.loot.roll.ConstantRoll;
 import com.seedfinding.mcfeature.loot.roll.UniformRoll;
+import kludwisz.mineshafts.MineshaftLoot;
 import kludwisz.rng.WorldgenRandom;
 
 import java.util.ArrayList;
@@ -20,9 +24,12 @@ import java.util.List;
 
 public class DungeonCalculations {
     public static void main(String[] args) {
-        double prob = 1D / 87_500;
-        double probExists = 1 - Math.pow(1D - prob, 65536);
-        System.out.printf("Probability of such a popseed existing: %.4f", probExists);
+        calculateGenerationPreconditionsProbability();
+
+//        double prob = 1D / 87_500;
+//        double probExists = 1 - Math.pow(1D - prob, 65536);
+//        System.out.printf("Probability of such a popseed existing: %.4f", probExists);
+
         //calculateLootProbability();
         //calculateChestPositionProbability();
     }
@@ -87,6 +94,97 @@ public class DungeonCalculations {
         System.out.println("Expected population seeds per good seed: " + ((double)total / good));
     }
 
+    private static void calculateGenerationPreconditionsProbability() {
+        // for each dungeon size, we'll calculate how likely it is for a mineshaft
+        // to generate an arrangement of air blocks that allows the dungeon to generate.
+
+        MineshaftLoot mgen = new MineshaftLoot(MCVersion.v1_21);
+        WorldgenRandom rand = new WorldgenRandom(WorldgenRandom.Type.XOROSHIRO);
+        rand.setSeed(1);
+
+        for (int sizeX = 3; sizeX <= 4; sizeX++) {
+            for (int sizeZ = 3; sizeZ <= 4; sizeZ++) {
+                long total = 100_000L;
+                long good = 0L;
+                System.out.printf("Size: %d x %d\n", sizeX*2 + 1, sizeZ*2 + 1);
+
+                for (long i = 0; i < total; i++) {
+                    long seed = rand.nextLong();
+                    Dungeon dungeon = new Dungeon(
+                            new BPos(rand.nextInt(16), -33, rand.nextInt(16)),
+                            sizeX, sizeZ
+                    );
+
+                    boolean floorWithoutAir = true;
+                    int airColumns = 0;
+
+                    for (int cx = -8; cx <= 8; cx++) {
+                        for (int cz = -8; cz <= 8; cz++) {
+                            CPos chunk = new CPos(cx, cz);
+                            if (!mgen.generateMineshaft(seed, chunk, false))
+                                continue;
+
+                            floorWithoutAir &= noAirInFloor(mgen, dungeon);
+                            airColumns += countAirColumns(mgen, dungeon);
+                        }
+                    }
+
+                    if (floorWithoutAir && airColumns >= 1 && airColumns <= 5)
+                        good++;
+                }
+
+                System.out.println("Total: " + total);
+                System.out.println("Good: " + good);
+                System.out.println("Probability: " + ((double)good / total));
+            }
+        }
+    }
+
+    private static boolean noAirInFloor(MineshaftLoot mgen, Dungeon dungeon) {
+        BlockBox dungeonFloor = new BlockBox(
+                dungeon.center.getX() - dungeon.sizeX, dungeon.center.getY() - 1, dungeon.center.getZ() - dungeon.sizeZ,
+                dungeon.center.getX() + dungeon.sizeX, dungeon.center.getY() - 1, dungeon.center.getZ() + dungeon.sizeZ
+        );
+
+        // firstly, we need to make sure that the miseshaft-placed air blocks
+        // won't stop the dungeon from spawning
+
+        boolean floorHasAir = mgen.getPieces().stream()
+                .filter(piece -> piece.boundingBox.intersects(dungeonFloor))
+                .anyMatch(piece -> piece.airIntersectsBox(dungeonFloor));
+        return !floorHasAir;
+    }
+
+    private static int countAirColumns(MineshaftLoot mgen, Dungeon dungeon) {
+        int cols = 0;
+
+        final int xMin = dungeon.center.getX() - dungeon.sizeX;
+        final int xMax = dungeon.center.getX() + dungeon.sizeX;
+        final int zMin = dungeon.center.getZ() - dungeon.sizeZ;
+        final int zMax = dungeon.center.getZ() + dungeon.sizeZ;
+
+        for (int x = xMin; x <= xMax; x++) {
+            for (int z = zMin; z <= zMax; z++) {
+                if (x != xMin && x != xMax && z != zMin && z != zMax)
+                    continue; // only check the walls
+
+                BPos colLower = new BPos(x, dungeon.center.getY(), z);
+                BPos colUpper = new BPos(x, dungeon.center.getY() + 1, z);
+                boolean air1 = mgen.getPieces().stream()
+                        .filter(piece -> piece.boundingBox.contains(colLower))
+                        .anyMatch(piece -> piece.airContainsPos(colLower));
+                boolean air2 = mgen.getPieces().stream()
+                        .filter(piece -> piece.boundingBox.contains(colUpper))
+                        .anyMatch(piece -> piece.airContainsPos(colUpper));
+
+                if (air1 && air2)
+                    cols++;
+            }
+        }
+
+        return cols;
+    }
+
     private static List<BPos> generatePossibleDungeonChests(WorldgenRandom rand) {
         List<BPos> chests = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
@@ -138,6 +236,7 @@ public class DungeonCalculations {
             }
         }
     }
+
     // -------------------------------------------------------------------------------
 
     private static final HashSet<String> UNSTACKABLE_ITEMS = new HashSet<>();
@@ -185,4 +284,6 @@ public class DungeonCalculations {
                     new ItemEntry(Items.STRING, 10)
             )
     );
+
+    private record Dungeon(BPos center, int sizeX, int sizeZ) {}
 }
