@@ -104,7 +104,7 @@ public class DungeonCalculations {
 
         for (int sizeX = 3; sizeX <= 4; sizeX++) {
             for (int sizeZ = 3; sizeZ <= 4; sizeZ++) {
-                long total = 100_000L;
+                long total = 500_000L;
                 long good = 0L;
                 System.out.printf("Size: %d x %d\n", sizeX*2 + 1, sizeZ*2 + 1);
 
@@ -118,8 +118,8 @@ public class DungeonCalculations {
                     boolean floorWithoutAir = true;
                     int airColumns = 0;
 
-                    for (int cx = -8; cx <= 8; cx++) {
-                        for (int cz = -8; cz <= 8; cz++) {
+                    for (int cx = -7; cx <= 7; cx++) {
+                        for (int cz = -7; cz <= 7; cz++) {
                             CPos chunk = new CPos(cx, cz);
                             if (!mgen.generateMineshaft(seed, chunk, false))
                                 continue;
